@@ -183,14 +183,31 @@ def hypothesis_test():
         hypothesized_value = beta0
 
     # TODO 10: Calculate p-value based on test type
-    p_value = None
+    greater_than = sum(stat > observed_stat for stat in simulated_stats) / len(simulated_stats)
+    less_than = sum(stat < observed_stat for stat in simulated_stats) / len(simulated_stats)
+    neq = min(greater_than, less_than)
+    if test_type == ">":
+        p_value = greater_than
+    elif test_type == "<":
+        p_value = less_than
+    else:
+        p_value = neq
 
     # TODO 11: If p_value is very small (e.g., <= 0.0001), set fun_message to a fun message
-    fun_message = None
+    fun_message = "You won." if p_value <= 0.0001 else ""
 
     # TODO 12: Plot histogram of simulated statistics
     plot3_path = "static/plot3.png"
     # Replace with code to generate and save the plot
+    plt.hist(simulated_stats, bins=20, alpha=0.5, color="blue", label="Simulated Statistics")
+    plt.axvline(observed_stat, color="red", linestyle="--", linewidth=1, label=f"Observed {parameter}: {observed_stat:.4f}")
+    plt.axvline(hypothesized_value, color="blue", linestyle="-", linewidth=1, label=f"Hypothesized {parameter} (H0): {hypothesized_value}")
+    plt.title(f"Hypothesis Test for {parameter}")
+    plt.xlabel(parameter)
+    plt.ylabel("frequency")
+    plt.legend()
+    plt.savefig(plot3_path)
+    plt.close()
 
     # Return results to template
     return render_template(
@@ -206,8 +223,8 @@ def hypothesis_test():
         beta1=beta1,
         S=S,
         # TODO 13: Uncomment the following lines when implemented
-        # p_value=p_value,
-        # fun_message=fun_message,
+        p_value=p_value,
+        fun_message=fun_message,
     )
 
 @app.route("/confidence_interval", methods=["POST"])
@@ -240,8 +257,8 @@ def confidence_interval():
         true_param = beta0
 
     # TODO 14: Calculate mean and standard deviation of the estimates
-    mean_estimate = None
-    std_estimate = None
+    mean_estimate = np.mean(estimates)
+    std_estimate = np.std(estimates)
 
     # TODO 15: Calculate confidence interval for the parameter estimate
     # Use the t-distribution and confidence_level
