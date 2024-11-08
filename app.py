@@ -24,7 +24,7 @@ def generate_data(N, mu, beta0, beta1, sigma2, S):
     model = LinearRegression()  # Initialize the LinearRegression model
     # None  # Fit the model to X and Y
     model.fit(X.reshape(-1, 1), Y)
-    slope = model.coef_  # Extract the slope (coefficient) from the fitted model
+    slope = model.coef_[0] # Extract the slope (coefficient) from the fitted model
     intercept = model.intercept_  # Extract the intercept from the fitted model
 
     # TODO 4: Generate a scatter plot of (X, Y) with the fitted regression line
@@ -46,7 +46,7 @@ def generate_data(N, mu, beta0, beta1, sigma2, S):
     for _ in range(S):
         # TODO 6: Generate simulated datasets using the same beta0 and beta1
         X_sim = np.random.random(N) # Replace with code to generate simulated X values
-        Y_sim = np.array([beta0 + beta1 * x + mu + np.random.normal(0, np.sqrt(sigma2)) for x in X]) # Replace with code to generate simulated Y values
+        Y_sim = np.array([beta0 + beta1 * x + mu + np.random.normal(0, np.sqrt(sigma2)) for x in X_sim]) # Replace with code to generate simulated Y values
 
         # TODO 7: Fit linear regression to simulated data and store slope and intercept
         sim_model = LinearRegression().fit(X_sim.reshape(-1, 1), Y_sim)  # Replace with code to fit the model
@@ -73,19 +73,19 @@ def generate_data(N, mu, beta0, beta1, sigma2, S):
 
     # TODO 9: Return data needed for further analysis, including slopes and intercepts
     # Calculate proportions of slopes and intercepts more extreme than observed
-    slope_more_extreme = sum(s > slope for s in slopes)  # Replace with code to calculate proportion of slopes more extreme than observed
-    intercept_extreme = sum(i < intercept for i in intercepts) # Replace with code to calculate proportion of intercepts more extreme than observed
+    slope_more_extreme = sum(s > slope for s in slopes) / len(slopes)  # Replace with code to calculate proportion of slopes more extreme than observed
+    intercept_extreme = sum(i > intercept for i in intercepts) / len(slopes) # Replace with code to calculate proportion of intercepts more extreme than observed
 
     # Return data needed for further analysis
     return (
         X,
         Y,
-        slope,
-        intercept,
+        float(slope),
+        float(intercept),
         plot1_path,
         plot2_path,
-        slope_more_extreme,
-        intercept_extreme,
+        float(slope_more_extreme),
+        float(intercept_extreme),
         slopes,
         intercepts,
     )
@@ -131,6 +131,8 @@ def index():
         session["beta0"] = beta0
         session["beta1"] = beta1
         session["S"] = S
+
+        print("Right before render template")
 
         # Return render_template with variables
         return render_template(
